@@ -1,0 +1,140 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Security Finding Template",
+  "description": "Format standardisé pour tous les findings de sécurité produits par les prompts LLM",
+  "type": "object",
+  "required": ["findings", "metadata"],
+  "properties": {
+    "metadata": {
+      "type": "object",
+      "required": ["scan_type", "target", "timestamp", "model"],
+      "properties": {
+        "scan_type": {
+          "type": "string",
+          "description": "Type d'analyse effectuée",
+          "enum": ["source_code_audit", "diff_analysis", "config_review", "dependency_audit", "web_app_test", "binary_analysis", "cloud_audit", "exploit_dev", "nday_research", "threat_model"]
+        },
+        "target": {
+          "type": "string",
+          "description": "Identifiant de la cible (repo URL, fichier, service)"
+        },
+        "scope": {
+          "type": "string",
+          "description": "Périmètre de l'analyse"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "model": {
+          "type": "string",
+          "description": "Modèle LLM utilisé"
+        },
+        "prompt_version": {
+          "type": "string",
+          "description": "Version du prompt utilisé"
+        }
+      }
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "title", "severity", "cvss_score", "vulnerability_class", "confidence", "affected_component", "description", "root_cause", "proof_of_concept", "impact", "remediation"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^FINDING-[0-9]{3}$",
+            "description": "Identifiant unique du finding"
+          },
+          "title": {
+            "type": "string",
+            "description": "Titre descriptif et concis du finding",
+            "maxLength": 120
+          },
+          "severity": {
+            "type": "string",
+            "enum": ["Critical", "High", "Medium", "Low", "Info"],
+            "description": "Sévérité selon le score CVSS"
+          },
+          "cvss_score": {
+            "type": "number",
+            "minimum": 0.0,
+            "maximum": 10.0,
+            "description": "Score CVSS 3.1"
+          },
+          "cvss_vector": {
+            "type": "string",
+            "pattern": "^CVSS:3\\.1/AV:[NALP]/AC:[LH]/PR:[NLH]/UI:[NR]/S:[UC]/C:[NLH]/I:[NLH]/A:[NLH]$",
+            "description": "Vecteur CVSS 3.1 complet"
+          },
+          "vulnerability_class": {
+            "type": "string",
+            "description": "Classification CWE (ex: CWE-79: Cross-Site Scripting)"
+          },
+          "confidence": {
+            "type": "string",
+            "enum": ["High", "Medium", "Low"],
+            "description": "Niveau de certitude du finding"
+          },
+          "affected_component": {
+            "type": "string",
+            "description": "Fichier et ligne affectés (ex: src/api/auth.py:142)"
+          },
+          "description": {
+            "type": "string",
+            "description": "Description détaillée de la vulnérabilité"
+          },
+          "root_cause": {
+            "type": "string",
+            "description": "Cause racine technique de la vulnérabilité"
+          },
+          "proof_of_concept": {
+            "type": "string",
+            "description": "PoC fonctionnel ou explication de pourquoi un PoC n'est pas démontrable"
+          },
+          "impact": {
+            "type": "string",
+            "description": "Impact business et technique concret"
+          },
+          "remediation": {
+            "type": "string",
+            "description": "Recommandation de correction précise avec exemple de code si applicable"
+          },
+          "references": {
+            "type": "array",
+            "items": {"type": "string"},
+            "description": "CVE, CWE, articles, ou documentation pertinente"
+          },
+          "exploitation_chain": {
+            "type": "string",
+            "description": "Si cette vuln peut être chaînée avec d'autres pour augmenter l'impact"
+          },
+          "prerequisites": {
+            "type": "string",
+            "description": "Conditions requises pour exploiter (auth requise, réseau interne, etc.)"
+          }
+        }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "properties": {
+        "total_findings": {"type": "integer"},
+        "critical": {"type": "integer"},
+        "high": {"type": "integer"},
+        "medium": {"type": "integer"},
+        "low": {"type": "integer"},
+        "info": {"type": "integer"},
+        "overall_risk": {
+          "type": "string",
+          "enum": ["Critical", "High", "Medium", "Low", "Minimal"]
+        },
+        "key_recommendations": {
+          "type": "array",
+          "items": {"type": "string"}
+        }
+      }
+    }
+  }
+}
